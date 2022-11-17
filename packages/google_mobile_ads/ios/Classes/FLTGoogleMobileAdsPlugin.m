@@ -194,7 +194,11 @@
 }
 
 - (UIViewController *)rootController {
-  return UIApplication.sharedApplication.delegate.window.rootViewController;
+  UIViewController *rootViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
+  if(rootViewController.presentedViewController != nil){
+    return rootViewController.presentedViewController;
+  }
+  return rootViewController;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall *)call
