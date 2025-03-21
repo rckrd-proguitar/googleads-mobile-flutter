@@ -44,7 +44,28 @@
 }
 
 - (UIViewController *)rootController {
-  return UIApplication.sharedApplication.delegate.window.rootViewController;
+  UIViewController *root =
+      UIApplication.sharedApplication.delegate.window.rootViewController;
+  
+  // Get the presented view controller. This fixes an issue in the add to app
+  // case: https://github.com/googleads/googleads-mobile-flutter/issues/1284
+  UIViewController *presentedViewController = root;
+  while (presentedViewController.presentedViewController &&
+         ![presentedViewController.presentedViewController isBeingDismissed]) {
+    if ([presentedViewController isKindOfClass:[UITabBarController class]]) {
+      UITabBarController *tabBarController =
+          (UITabBarController *)presentedViewController;
+      presentedViewController = tabBarController.selectedViewController;
+    } else if ([presentedViewController
+                   isKindOfClass:[UINavigationController class]]) {
+      UINavigationController *navigationController =
+          (UINavigationController *)presentedViewController;
+      presentedViewController = navigationController.visibleViewController;
+    } else {
+      presentedViewController = presentedViewController.presentedViewController;
+    }
+  }
+  return presentedViewController;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall *_Nonnull)call
